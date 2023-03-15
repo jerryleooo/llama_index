@@ -1,9 +1,11 @@
 import os.path
 from pathlib import Path
 
-from llama_index import GPTSimpleVectorIndex, download_loader
+from langchain import OpenAI
+from llama_index import GPTSimpleVectorIndex, download_loader, LLMPredictor
 
-os.environ['OPENAI_API_KEY'] = "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"
+os.environ['OPENAI_API_KEY'] = "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"
+llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name="gpt-3.5-turbo"))
 
 if __name__ == "__main__":
     if os.path.exists('./paper.json'):
@@ -14,7 +16,7 @@ if __name__ == "__main__":
         loader = PDFReader()
         documents = loader.load_data(file=Path('./data/Cyclic Arbitrage in Decentralized Exchanges.pdf'))
 
-        index = GPTSimpleVectorIndex(documents)
+        index = GPTSimpleVectorIndex(documents, llm_predictor=llm_predictor)
         index.save_to_disk("./paper.json")
 
     pair_definition = '''

@@ -1,17 +1,20 @@
 import os
 import pickle
 
-from llama_index import download_loader, GPTSimpleVectorIndex
+from langchain import OpenAI
+from llama_index import download_loader, GPTSimpleVectorIndex, LLMPredictor
 
 download_loader("GithubRepositoryReader")
 
 from llama_index.readers.llamahub_modules.github_repo import GithubRepositoryReader, GithubClient
 
-os.environ['OPENAI_API_KEY'] = "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"
+os.environ['OPENAI_API_KEY'] = "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"
+llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name="gpt-3.5-turbo"))
 
 if __name__ == "__main__":
-    index = GPTSimpleVectorIndex.load_from_disk('./BiAn.json')
-    if not index:
+    if os.path.exists('./BiAn.json'):
+        index = GPTSimpleVectorIndex.load_from_disk('./BiAn.json')
+    else:
         docs = None
         if os.path.exists("docs.pkl"):
             with open("docs.pkl", "rb") as f:
@@ -32,7 +35,7 @@ if __name__ == "__main__":
             with open("docs.pkl", "wb") as f:
                 pickle.dump(docs, f)
 
-        index = GPTSimpleVectorIndex(docs)
+        index = GPTSimpleVectorIndex(docs, llm_predictor=llm_predictor)
         index.save_to_disk("./BiAn.json")
 
     raw_solidity_code = ""
